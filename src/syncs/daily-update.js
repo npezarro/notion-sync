@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync, execFileSync } from 'node:child_process';
+import { execSync, execFileSync, spawnSync } from 'node:child_process';
 import { makeClient, richText } from '../notion.js';
 import { loadState, saveState } from '../state.js';
 import { mdToBlocks } from '../md-to-blocks.js';
@@ -118,6 +118,29 @@ function buildPrompt(date, commits, wp, memory) {
   return lines.join('\n');
 }
 
+function sendEmail({ date, totalCommits, repoCount, summary, pageId }) {
+  if (process.env.DAILY_UPDATE_EMAIL === 'false') return;
+  const sender = process.env.EMAIL_SENDER_SCRIPT;
+  if (!sender || !fs.existsSync(sender)) {
+    console.log('[daily] EMAIL_SENDER_SCRIPT not set or missing, skipping email');
+    return;
+  }
+  const url = `https://www.notion.so/${pageId.replace(/-/g, '')}`;
+  const subject = `Daily update: ${date} — ${totalCommits} commits / ${repoCount} repos`;
+  const body = `${url}\n\n${totalCommits} commits across ${repoCount} repos\n\n${summary}\n`;
+  const senderName = process.env.EMAIL_SENDER_NAME || 'Notion Sync';
+  const res = spawnSync('bash', [sender, subject, '--sender-name', senderName], {
+    input: body,
+    encoding: 'utf8',
+    timeout: 30_000
+  });
+  if (res.status === 0) {
+    console.log('[daily] email sent');
+  } else {
+    console.log(`[daily] email failed (exit ${res.status}): ${(res.stderr || res.stdout || '').slice(0, 200)}`);
+  }
+}
+
 function synthesize(prompt) {
   try {
     const out = execFileSync('claude', ['-p'], {
@@ -192,5 +215,8 @@ export async function syncDailyUpdate({ dryRun, date }) {
   });
   pageMap[key] = id;
   saveState(state);
+
+  sendEmail({ date: key, totalCommits, repoCount, summary, pageId: id });
+
   console.log(`[daily] done: ${key}`);
 }

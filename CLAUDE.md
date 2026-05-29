@@ -36,6 +36,10 @@ npm run sync:kb        # individual sync
 
 PM2 cron at 06:00 PT daily (`ecosystem.config.cjs`).
 
+## Email hook
+
+After `daily-update` upserts a page it shells out to `$EMAIL_SENDER_SCRIPT` with the synthesized summary on stdin. The script is expected to accept `<subject> --sender-name <name>` and read the body from stdin. Disable per-run with `DAILY_UPDATE_EMAIL=false`. Skipped silently if `EMAIL_SENDER_SCRIPT` is unset or missing.
+
 ## Semantics
 
 - Upsert by stable key; re-runs do not duplicate.
