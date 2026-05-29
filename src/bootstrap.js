@@ -52,6 +52,16 @@ const DATABASES = {
       Archived: { checkbox: {} }
     }
   },
+  dailyUpdates: {
+    title: 'Daily Updates',
+    properties: {
+      Title: { title: {} },
+      Date: { date: {} },
+      Commits: { number: {} },
+      'Repos Touched': { number: {} },
+      'Last Synced': { date: {} }
+    }
+  },
   blogPosts: {
     title: 'Blog Posts',
     properties: {

@@ -4,13 +4,17 @@ import { syncKnowledgeBase } from './syncs/knowledge-base.js';
 import { syncSkills } from './syncs/skills.js';
 import { syncRepos } from './syncs/repos.js';
 import { syncBlogPosts } from './syncs/blog-posts.js';
+import { syncDailyUpdate } from './syncs/daily-update.js';
 
 const SYNCS = {
   'knowledge-base': syncKnowledgeBase,
   'skills': syncSkills,
   'repos': syncRepos,
-  'blog-posts': syncBlogPosts
+  'blog-posts': syncBlogPosts,
+  'daily-update': syncDailyUpdate
 };
+
+const DEFAULT_SYNCS = ['knowledge-base', 'skills', 'repos', 'blog-posts', 'daily-update'];
 
 function parseArgs(argv) {
   const args = argv.slice(2);
@@ -19,12 +23,13 @@ function parseArgs(argv) {
   return {
     command: positional[0],
     target: positional[1],
+    extra: positional[2],
     dryRun: flags.has('--dry-run')
   };
 }
 
 async function main() {
-  const { command, target, dryRun } = parseArgs(process.argv);
+  const { command, target, extra, dryRun } = parseArgs(process.argv);
 
   if (command === 'bootstrap') {
     await bootstrap();
@@ -32,8 +37,8 @@ async function main() {
   }
 
   if (command === 'sync') {
-    const opts = { dryRun };
-    const names = target ? [target] : Object.keys(SYNCS);
+    const opts = { dryRun, date: extra };
+    const names = target ? [target] : DEFAULT_SYNCS;
     for (const name of names) {
       const fn = SYNCS[name];
       if (!fn) throw new Error(`unknown sync: ${name}. options: ${Object.keys(SYNCS).join(', ')}`);
