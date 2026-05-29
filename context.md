@@ -4,18 +4,17 @@
 2026-05-29 — initial scaffold + 5 sync modules live; first cron firing tomorrow 06:00 PT.
 
 ## Current State
-- 5 sync modules working end-to-end: knowledge-base, skills, repos, blog-posts, daily-update.
-- First full sync wrote 250 pages to Notion (42 KB / 14 skills / 98 repos / 95 WP posts / 1 daily-update for 2026-05-28).
-- PM2 process `notion-sync` registered, `cron_restart: 0 6 * * *`, currently stopped (waits for cron).
-- Email hook tested; fires on daily-update upsert via `EMAIL_SENDER_SCRIPT`.
+- 6 sync modules working end-to-end: knowledge-base, skills, repos, blog-posts, daily-update, weekly-update.
+- First full sync + extensions wrote 265+ pages: 42 KB / 27 skills (14 custom + 13 harness built-ins) / 98 repos / 95 WP posts / 1 daily / 1 weekly.
+- PM2 process `notion-sync` registered, `cron_restart: 0 6 * * *`, currently stopped (waits for cron). Weekly auto-runs only on Mondays.
+- Email hook tested; fires on daily-update + weekly-update upsert via `EMAIL_SENDER_SCRIPT`.
+- State backup live: every `saveState` writes to `STATE_BACKUP_PATH` (atomic temp+rename); restores from backup if main `state.json` is missing.
 - Public repo: github.com/npezarro/notion-sync.
 
 ## Open Work
 - First organic cron firing tomorrow 06:00 PT. If it doesn't land, check `pm2 logs notion-sync` and WSL timezone.
-- `state.json` is local-only — repo nuke loses the source→page-ID map. Consider backing up to a secondary location on each successful run.
-- Built-in harness skills (loop, schedule, claude-api, init, review, security-review) aren't filesystem-resident and so aren't synced. Hardcoded list would close the gap.
 - WP post embeds (YouTube etc.) dropped by turndown. Custom converter could emit Notion embed blocks if desired.
-- Weekly rollup synthesis is a small extension if useful.
+- Harness built-in skills list is hardcoded (refresh date 2026-05-29). Diff against SessionStart skill list periodically to catch additions.
 
 ## Environment Notes
 - **Deploy target:** local WSL, PM2-managed

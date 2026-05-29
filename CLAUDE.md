@@ -7,9 +7,11 @@ One-way daily sync from ecosystem sources into Notion. Notion is a read-only bro
 | Source | Notion DB | Key |
 |---|---|---|
 | `${KB_DIR}/**/*.md` | Knowledge Base | source path (relative) |
-| `${SKILLS_DIRS}` | Skills | skill name |
+| `${SKILLS_DIRS}` + harness built-ins | Skills | skill name |
 | `${REPOS_DIR}/*/` | Repos | repo name |
 | `${WP_BASE_URL}/wp-json/wp/v2/posts` | Blog Posts | WP post ID |
+| git+WP+memory for one day | Daily Updates | YYYY-MM-DD |
+| git+WP+memory for one ISO week | Weekly Updates | YYYY-MM-DD (Monday) |
 
 ## Run
 
@@ -34,7 +36,11 @@ npm run sync:kb        # individual sync
 
 ## Cron
 
-PM2 cron at 06:00 PT daily (`ecosystem.config.cjs`).
+PM2 cron at 06:00 PT daily (`ecosystem.config.cjs`). `weekly-update` is in the default sequence but no-ops on non-Monday days when called without an explicit date.
+
+## State backup
+
+If `STATE_BACKUP_PATH` is set, every successful `saveState` writes a copy there atomically. On startup, if the main `state.json` is missing, it restores from the backup. Disable by leaving the env var empty.
 
 ## Email hook
 
