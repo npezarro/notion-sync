@@ -1,0 +1,27 @@
+{
+  "name": "notion-sync",
+  "version": "0.1.0",
+  "private": true,
+  "description": "One-way daily sync from ecosystem sources (knowledgeBase, skills, repos, WP posts) into Notion",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "bootstrap": "node src/index.js bootstrap",
+    "sync": "node src/index.js sync",
+    "sync:kb": "node src/index.js sync knowledge-base",
+    "sync:skills": "node src/index.js sync skills",
+    "sync:repos": "node src/index.js sync repos",
+    "sync:wp": "node src/index.js sync blog-posts",
+    "dry": "node src/index.js sync --dry-run"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "@tryfabric/martian": "^1.2.4",
+    "dotenv": "^16.4.5",
+    "gray-matter": "^4.0.3",
+    "turndown": "^7.2.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
