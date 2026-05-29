@@ -62,6 +62,17 @@ const DATABASES = {
       'Last Synced': { date: {} }
     }
   },
+  weeklyUpdates: {
+    title: 'Weekly Updates',
+    properties: {
+      Title: { title: {} },
+      'Week Start': { date: {} },
+      'Week End': { date: {} },
+      Commits: { number: {} },
+      'Repos Touched': { number: {} },
+      'Last Synced': { date: {} }
+    }
+  },
   blogPosts: {
     title: 'Blog Posts',
     properties: {

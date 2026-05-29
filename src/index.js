@@ -5,16 +5,18 @@ import { syncSkills } from './syncs/skills.js';
 import { syncRepos } from './syncs/repos.js';
 import { syncBlogPosts } from './syncs/blog-posts.js';
 import { syncDailyUpdate } from './syncs/daily-update.js';
+import { syncWeeklyUpdate } from './syncs/weekly-update.js';
 
 const SYNCS = {
   'knowledge-base': syncKnowledgeBase,
   'skills': syncSkills,
   'repos': syncRepos,
   'blog-posts': syncBlogPosts,
-  'daily-update': syncDailyUpdate
+  'daily-update': syncDailyUpdate,
+  'weekly-update': syncWeeklyUpdate
 };
 
-const DEFAULT_SYNCS = ['knowledge-base', 'skills', 'repos', 'blog-posts', 'daily-update'];
+const DEFAULT_SYNCS = ['knowledge-base', 'skills', 'repos', 'blog-posts', 'daily-update', 'weekly-update'];
 
 function parseArgs(argv) {
   const args = argv.slice(2);

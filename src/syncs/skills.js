@@ -23,8 +23,37 @@ import { upsertDbPage } from '../lib/page.js';
 
 const SKIP_TOP_LEVEL = new Set(['CLAUDE.md', 'README.md', 'MEMORY.md', 'SKILL_TEMPLATE.md']);
 
+// Skills shipped by the Claude Code harness that do not live on disk as SKILL.md files.
+// Refresh periodically by diffing the SessionStart skill list against `ls ~/.claude/skills`.
+// Last refreshed: 2026-05-29 (Claude Code 2.1.x).
+const HARNESS_BUILTINS = [
+  { name: 'init', description: 'Initialize a new CLAUDE.md file with codebase documentation' },
+  { name: 'review', description: 'Review a pull request' },
+  { name: 'security-review', description: 'Complete a security review of the pending changes on the current branch' },
+  { name: 'verify', description: "Verify that a code change actually does what it's supposed to by running the app and observing behavior" },
+  { name: 'verify-oauth', description: 'Verify OAuth configuration for a subpath-deployed app' },
+  { name: 'code-review', description: 'Review the current diff for correctness bugs at the given effort level. Pass --comment to post findings as inline PR comments.' },
+  { name: 'fewer-permission-prompts', description: 'Scan transcripts for common read-only Bash and MCP tool calls and add a prioritized allowlist to .claude/settings.json.' },
+  { name: 'loop', description: 'Run a prompt or slash command on a recurring interval (e.g. /loop 5m /foo). Omit the interval to let the model self-pace.' },
+  { name: 'schedule', description: 'Create, update, list, or run scheduled remote agents (routines) that execute on a cron schedule.' },
+  { name: 'claude-api', description: 'Build, debug, and optimize Claude API / Anthropic SDK apps. Includes prompt caching guidance and model-version migration.' },
+  { name: 'run', description: "Launch and drive this project's app to see a change working. Use when asked to run, start, or screenshot the app." },
+  { name: 'update-config', description: 'Configure the Claude Code harness via settings.json — permissions, env vars, hooks, automated behaviors.' },
+  { name: 'keybindings-help', description: 'Customize keyboard shortcuts, rebind keys, add chord bindings, modify ~/.claude/keybindings.json.' }
+];
+
 function collectSkills(roots) {
   const byName = new Map();
+
+  for (const b of HARNESS_BUILTINS) {
+    byName.set(b.name, {
+      name: b.name,
+      type: 'Built-in',
+      source: '(Claude Code harness)',
+      content: `---\nname: ${b.name}\ndescription: ${b.description}\n---\n\n${b.description}\n\n_This skill ships with the Claude Code harness and does not exist as a file on disk._`
+    });
+  }
+
   for (const root of roots) {
     if (!fs.existsSync(root)) continue;
     for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
