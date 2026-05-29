@@ -1,40 +1,59 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
+
+function safeMatter(raw) {
+  try {
+    return matter(raw);
+  } catch {
+    const m = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+    if (!m) return { content: raw, data: {} };
+    const data = {};
+    for (const line of m[1].split('\n')) {
+      const kv = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+      if (kv) data[kv[1]] = kv[2].replace(/^["']|["']$/g, '');
+    }
+    return { content: m[2], data };
+  }
+}
 import { makeClient, richText } from '../notion.js';
 import { loadState, saveState } from '../state.js';
 import { mdToBlocks } from '../md-to-blocks.js';
 import { upsertDbPage } from '../lib/page.js';
 
+const SKIP_TOP_LEVEL = new Set(['CLAUDE.md', 'README.md', 'MEMORY.md', 'SKILL_TEMPLATE.md']);
+
 function collectSkills(roots) {
-  const skills = [];
+  const byName = new Map();
   for (const root of roots) {
     if (!fs.existsSync(root)) continue;
-    const type = root.includes('claude-skills') ? 'Custom' : 'Built-in';
     for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
       if (entry.name.startsWith('.')) continue;
       const full = path.join(root, entry.name);
       if (entry.isDirectory()) {
         const skillMd = path.join(full, 'SKILL.md');
         if (fs.existsSync(skillMd)) {
-          skills.push({
+          if (byName.has(entry.name)) continue;
+          byName.set(entry.name, {
             name: entry.name,
-            type,
+            type: 'Custom',
             source: skillMd,
             content: fs.readFileSync(skillMd, 'utf8')
           });
         }
-      } else if (entry.name.endsWith('.md')) {
-        skills.push({
-          name: entry.name.replace(/\.md$/, ''),
-          type,
+      } else if (entry.name.endsWith('.md') && !SKIP_TOP_LEVEL.has(entry.name)) {
+        const name = entry.name.replace(/\.md$/, '');
+        if (byName.has(name)) continue;
+        byName.set(name, {
+          name,
+          type: 'Custom',
           source: full,
           content: fs.readFileSync(full, 'utf8')
         });
       }
     }
   }
-  return skills;
+  return [...byName.values()];
 }
 
 export async function syncSkills({ dryRun }) {
@@ -60,7 +79,7 @@ export async function syncSkills({ dryRun }) {
   for (const s of skills) {
     const key = `${s.type}::${s.name}`;
     seen.add(key);
-    const { content, data } = matter(s.content);
+    const { content, data } = safeMatter(s.content);
     const trigger = data.description || data.when_to_use || '';
     const blocks = mdToBlocks(content);
 
