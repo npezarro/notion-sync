@@ -5,7 +5,7 @@
 
 ## Current State
 - 6 sync modules working end-to-end: knowledge-base, skills, repos, blog-posts, daily-update, weekly-update.
-- First full sync + extensions wrote 265+ pages: 42 KB / 27 skills (14 custom + 13 harness built-ins) / 98 repos / 95 WP posts / 1 daily / 1 weekly.
+- First full sync + extensions wrote ~250 pages: 42 KB / 14 user-owned skills (harness built-ins excluded by design) / 98 repos / 95 WP posts / 1 daily / 1 weekly.
 - PM2 process `notion-sync` registered, `cron_restart: 0 6 * * *`, currently stopped (waits for cron). Weekly auto-runs only on Mondays.
 - Email hook tested; fires on daily-update + weekly-update upsert via `EMAIL_SENDER_SCRIPT`.
 - State backup live: every `saveState` writes to `STATE_BACKUP_PATH` (atomic temp+rename); restores from backup if main `state.json` is missing.
@@ -14,7 +14,6 @@
 ## Open Work
 - First organic cron firing tomorrow 06:00 PT. If it doesn't land, check `pm2 logs notion-sync` and WSL timezone.
 - WP post embeds (YouTube etc.) dropped by turndown. Custom converter could emit Notion embed blocks if desired.
-- Harness built-in skills list is hardcoded (refresh date 2026-05-29). Diff against SessionStart skill list periodically to catch additions.
 
 ## Environment Notes
 - **Deploy target:** local WSL, PM2-managed

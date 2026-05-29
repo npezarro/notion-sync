@@ -7,7 +7,7 @@ One-way daily sync from ecosystem sources into Notion. Notion is a read-only bro
 | Source | Notion DB | Key |
 |---|---|---|
 | `${KB_DIR}/**/*.md` | Knowledge Base | source path (relative) |
-| `${SKILLS_DIRS}` + harness built-ins | Skills | skill name |
+| `${SKILLS_DIRS}` | Skills | skill name (user-owned only — harness built-ins intentionally excluded) |
 | `${REPOS_DIR}/*/` | Repos | repo name |
 | `${WP_BASE_URL}/wp-json/wp/v2/posts` | Blog Posts | WP post ID |
 | git+WP+memory for one day | Daily Updates | YYYY-MM-DD |
