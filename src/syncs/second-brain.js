@@ -132,7 +132,7 @@ export async function syncSecondBrain({ dryRun }) {
   const pageMap = state.pages.secondBrain;
 
   const seen = new Set();
-  let written = 0, failed = 0;
+  let written = 0, failed = 0, skipped = 0, adopted = 0;
   try {
     for (const it of items) {
       seen.add(it.key);
@@ -140,6 +140,14 @@ export async function syncSecondBrain({ dryRun }) {
         console.log(`  DRY  ${it.type.padEnd(11)} ${it.category.padEnd(9)} ${it.title}`);
         continue;
       }
+      // Content hash (excludes mtime-based Captured so git touches don't churn).
+      const hash = hash8(JSON.stringify([it.title, it.type, it.category, it.description, it.source, it.blocks]));
+      const entry = pageMap[it.key];
+      const existingId = typeof entry === 'string' ? entry : entry?.id;
+      const existingHash = typeof entry === 'string' ? null : entry?.hash;
+
+      if (existingId && existingHash === hash) { skipped++; continue; }  // unchanged — no API call
+
       const properties = {
         Name: { title: richText(it.title) },
         Type: { select: { name: it.type } },
@@ -150,9 +158,18 @@ export async function syncSecondBrain({ dryRun }) {
         Archived: { checkbox: false }
       };
       try {
-        // One bad note must not abort the run or orphan pages.
-        const id = await upsertDbPage(client, { dbId, pageId: pageMap[it.key], properties, blocks: stripInvalidLinks(it.blocks) });
-        pageMap[it.key] = id;
+        let id;
+        if (existingId && existingHash == null) {
+          // Legacy page (id-only state): adopt cheaply — refresh properties,
+          // trust the existing body (already written correctly). Avoids
+          // rewriting every block on the migration run (which would time out).
+          await client.pages.update({ page_id: existingId, properties });
+          id = existingId; adopted++;
+        } else {
+          // New page, or content changed: full upsert (rewrites blocks).
+          id = await upsertDbPage(client, { dbId, pageId: existingId, properties, blocks: stripInvalidLinks(it.blocks) });
+        }
+        pageMap[it.key] = { id, hash };
         written++;
         if (written % 20 === 0) { console.log(`  ... ${written}`); saveState(state); }
       } catch (e) {
@@ -162,13 +179,14 @@ export async function syncSecondBrain({ dryRun }) {
     }
 
     // Archive rows whose source is gone (deleted memory file / removed thought).
-    for (const [key, pageId] of Object.entries(pageMap)) {
+    for (const [key, entry] of Object.entries(pageMap)) {
       if (seen.has(key) || dryRun) continue;
+      const pageId = typeof entry === 'string' ? entry : entry?.id;
       await client.pages.update({ page_id: pageId, properties: { Archived: { checkbox: true } } }).catch(() => {});
       console.log(`  ~ archive ${key}`);
     }
   } finally {
     if (!dryRun) saveState(state);  // persist progress even on partial failure
   }
-  console.log(`[second-brain] done. ${written} written, ${failed} skipped.`);
+  console.log(`[second-brain] done. ${written} written (${adopted} adopted), ${skipped} unchanged, ${failed} failed.`);
 }
