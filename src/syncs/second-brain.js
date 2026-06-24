@@ -24,6 +24,24 @@ function sanitizeMarkdown(md) {
     .replace(/\[([^\]]+)\]\((?!https?:\/\/)[^)]*\)/g, '$1');              // [text](non-http) -> text
 }
 
+// Block-level safety net: mdToBlocks AUTOLINKS bare URLs in text (e.g. the
+// literal "http://localhost:N/" placeholder in a note), and Notion rejects any
+// link whose URL won't parse. Drop invalid link annotations, keep the text.
+function stripInvalidLinks(blocks) {
+  for (const b of blocks || []) {
+    const body = b?.[b?.type];
+    for (const rt of body?.rich_text || []) {
+      const url = rt?.text?.link?.url;
+      if (!url) continue;
+      let ok = false;
+      try { const u = new URL(url); ok = u.protocol === 'http:' || u.protocol === 'https:'; } catch { ok = false; }
+      if (!ok) rt.text.link = null;
+    }
+    if (Array.isArray(body?.children)) stripInvalidLinks(body.children);
+  }
+  return blocks;
+}
+
 // ── memory/ facts ───────────────────────────────────────────────────
 function collectFacts(memDir) {
   if (!memDir || !fs.existsSync(memDir)) return [];
@@ -133,7 +151,7 @@ export async function syncSecondBrain({ dryRun }) {
       };
       try {
         // One bad note must not abort the run or orphan pages.
-        const id = await upsertDbPage(client, { dbId, pageId: pageMap[it.key], properties, blocks: it.blocks });
+        const id = await upsertDbPage(client, { dbId, pageId: pageMap[it.key], properties, blocks: stripInvalidLinks(it.blocks) });
         pageMap[it.key] = id;
         written++;
         if (written % 20 === 0) { console.log(`  ... ${written}`); saveState(state); }
