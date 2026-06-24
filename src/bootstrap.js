@@ -2,6 +2,35 @@ import { makeClient } from './notion.js';
 import { loadState, saveState } from './state.js';
 
 const DATABASES = {
+  secondBrain: {
+    title: 'Second Brain',
+    properties: {
+      Name: { title: {} },
+      Type: {
+        select: {
+          options: [
+            { name: 'Fact' },
+            { name: 'Raw Thought' }
+          ]
+        }
+      },
+      Category: {
+        select: {
+          options: [
+            { name: 'user' },
+            { name: 'feedback' },
+            { name: 'project' },
+            { name: 'reference' },
+            { name: 'inbox' }
+          ]
+        }
+      },
+      Description: { rich_text: {} },
+      Captured: { date: {} },
+      'Source Path': { rich_text: {} },
+      Archived: { checkbox: {} }
+    }
+  },
   knowledgeBase: {
     title: 'Knowledge Base',
     properties: {
