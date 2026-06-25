@@ -4,6 +4,10 @@
 
 | Date | Type | Description |
 |------|------|-------------|
+| 2026-06-24 | commit | `ead26b9` second-brain: content-hash skip + cheap legacy adoption (daily re-sync was rewriting all blocks, timed out >180 notes; now idempotent re-run = 0.7s). |
+| 2026-06-24 | commit | `914d413` second-brain: block-level `URL()` validation drops invalid autolink URLs (e.g. literal `http://localhost:N/`). |
+| 2026-06-23 | commit | `2813897` add `second-brain` sync: mirror memory/ facts + privateContext/inbox/ thoughts into new "Second Brain" Notion DB. Wired into DEFAULT_SYNCS (runs on 0600 cron). |
+| 2026-06-23 | deploy | Second Brain DB bootstrapped + first full sync: 182 rows (180 facts + 2 thoughts). Closeout: `privateContext/deliverables/closeouts/2026-06-24-second-brain-system.md`. |
 | 2026-05-29 | commit | `1ad8700` state backup + harness built-in skills + weekly rollup sync. |
 | 2026-05-29 | deploy | Weekly Updates DB bootstrapped; recap for 2026-05-18 → 2026-05-24 written (2132 commits / 65 repos). |
 | 2026-05-29 | deploy | Skills DB re-synced with 13 harness built-ins merged in (27 total skills). |

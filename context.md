@@ -1,10 +1,13 @@
 # context.md
 
 ## Last Updated
-2026-05-29 — initial scaffold + 5 sync modules live; first cron firing tomorrow 06:00 PT.
+2026-06-24 — added `second-brain` sync (7th module): mirrors memory/ atomic facts + privateContext/inbox/ raw thoughts into a new "Second Brain" Notion DB (Type: Fact / Raw Thought). Gives a cloud/mobile browse layer for the second-brain system. Content-hash skipping makes daily re-runs idempotent (0.7s when unchanged). Fixed Notion invalid-URL rejection (memory notes have wikilinks/relative-links/bare autolink placeholders) via markdown + block-level `URL()` sanitization. Initial mirror: 182 rows. Commits `2813897`/`914d413`/`ead26b9`. Closeout: `privateContext/deliverables/closeouts/2026-06-24-second-brain-system.md`.
+
+Prior: 2026-05-29 — initial scaffold + 5 sync modules live.
 
 ## Current State
-- 6 sync modules working end-to-end: knowledge-base, skills, repos, blog-posts, daily-update, weekly-update.
+- 7 sync modules working end-to-end: second-brain, knowledge-base, skills, repos, blog-posts, daily-update, weekly-update.
+- `second-brain`: 182 rows (180 memory facts + 2 inbox thoughts); state entries are `{id, hash}` for content-skip; runs on the same 0600 cron.
 - First full sync + extensions wrote ~250 pages: 42 KB / 14 user-owned skills (harness built-ins excluded by design) / 98 repos / 95 WP posts / 1 daily / 1 weekly.
 - PM2 process `notion-sync` registered, `cron_restart: 0 6 * * *`, currently stopped (waits for cron). Weekly auto-runs only on Mondays.
 - Email hook tested; fires on daily-update + weekly-update upsert via `EMAIL_SENDER_SCRIPT`.
