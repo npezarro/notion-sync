@@ -90,7 +90,7 @@ function sendEmail({ key, weekStart, weekEnd, totalCommits, repoCount, summary, 
 
 function synthesize(prompt) {
   try {
-    const out = execFileSync('claude', ['-p'], {
+    const out = execFileSync('claude', ['-p', '--model', 'claude-sonnet-5'], {
       input: prompt,
       encoding: 'utf8',
       maxBuffer: 20_000_000,

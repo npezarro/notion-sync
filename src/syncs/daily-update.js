@@ -76,7 +76,7 @@ function sendEmail({ date, totalCommits, repoCount, summary, pageId }) {
 
 function synthesize(prompt) {
   try {
-    const out = execFileSync('claude', ['-p'], {
+    const out = execFileSync('claude', ['-p', '--model', 'claude-sonnet-5'], {
       input: prompt,
       encoding: 'utf8',
       maxBuffer: 10_000_000,
