@@ -1,7 +1,9 @@
 # context.md
 
 ## Last Updated
-2026-06-24 — added `second-brain` sync (7th module): mirrors memory/ atomic facts + privateContext/inbox/ raw thoughts into a new "Second Brain" Notion DB (Type: Fact / Raw Thought). Gives a cloud/mobile browse layer for the second-brain system. Content-hash skipping makes daily re-runs idempotent (0.7s when unchanged). Fixed Notion invalid-URL rejection (memory notes have wikilinks/relative-links/bare autolink placeholders) via markdown + block-level `URL()` sanitization. Initial mirror: 182 rows. Commits `2813897`/`914d413`/`ead26b9`. Closeout: `privateContext/deliverables/closeouts/2026-06-24-second-brain-system.md`.
+2026-09-26 — daily/weekly synthesis pinned to `claude-sonnet-5` (`1fb10be`). Unpinned, `execFileSync('claude', ['-p'])` followed the interactive `/model` default through four models in four weeks. Blind same-input replay of 4 real days (Fable 5.1 judge): Sonnet 5 79.0 vs Opus 5.5 80.8, fewer unsupported claims (8 vs 11), parity within noise. Full closeout: `privateContext/deliverables/closeouts/2026-09-26-headless-model-routing.md`.
+
+Prior: 2026-06-24 — added `second-brain` sync (7th module): mirrors memory/ atomic facts + privateContext/inbox/ raw thoughts into a new "Second Brain" Notion DB (Type: Fact / Raw Thought). Gives a cloud/mobile browse layer for the second-brain system. Content-hash skipping makes daily re-runs idempotent (0.7s when unchanged). Fixed Notion invalid-URL rejection (memory notes have wikilinks/relative-links/bare autolink placeholders) via markdown + block-level `URL()` sanitization. Initial mirror: 182 rows. Commits `2813897`/`914d413`/`ead26b9`. Closeout: `privateContext/deliverables/closeouts/2026-06-24-second-brain-system.md`.
 
 Prior: 2026-05-29 — initial scaffold + 5 sync modules live.
 

@@ -4,6 +4,7 @@
 
 | Date | Type | Description |
 |------|------|-------------|
+| 2026-09-26 | commit | `1fb10be` daily-update + weekly-update synthesis pinned to `--model claude-sonnet-5` (was unpinned; replay bakeoff at parity). |
 | 2026-06-24 | commit | `ead26b9` second-brain: content-hash skip + cheap legacy adoption (daily re-sync was rewriting all blocks, timed out >180 notes; now idempotent re-run = 0.7s). |
 | 2026-06-24 | commit | `914d413` second-brain: block-level `URL()` validation drops invalid autolink URLs (e.g. literal `http://localhost:N/`). |
 | 2026-06-23 | commit | `2813897` add `second-brain` sync: mirror memory/ facts + privateContext/inbox/ thoughts into new "Second Brain" Notion DB. Wired into DEFAULT_SYNCS (runs on 0600 cron). |
